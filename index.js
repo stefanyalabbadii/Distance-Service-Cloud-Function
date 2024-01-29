@@ -1,15 +1,35 @@
-
-// Import the Distance module
-const calculate = require('./Distance');
-
-// User input values
-const unit = process.argv[2]; // Unit as a command-line argument
-const value = parseFloat(process.argv[3]); // Value as a command-line argument, parsed as a float
-
-// Check if unit and value are provided
-if (unit && !isNaN(value)) {
-    // Call the calculate function with user-provided values
-    console.log(`${value} ${unit} is ${calculate(unit, value).toFixed(3)} ${unit === 'feet' || unit === 'meters' ? 'meters' : 'kilometers'}.`);
-} else {
-    console.log('Please provide valid unit and value.');
+function feetToMeter (feet) {
+    return feet * 0.3048;
 }
+function metersToFeet (meters){
+    return meters * 3.28084;
+}
+function milesToKm (miles){
+    return miles * 1.60934;
+}
+function kmToMiles (km) {
+    return km * 0.621371;
+ }
+function calculate(unit, value) {
+    switch (unit) {
+        case 'feet':
+            return feetToMeter(value);
+        case 'meters':
+            return metersToFeet(value);
+        case 'miles':
+            return milesToKm(value);
+        case 'km':
+            return kmToMiles(value);
+        default:
+            return 'Invalid unit';
+    }
+}
+
+exports.calculateDistance = (req, res) => {
+    const { unit, value } = req.query;
+    const result = calculate(unit, value);
+    if (result === 'Invalid unit') {
+        return res.status(400).send(result);
+    }
+    res.status(200).send(result.toString());
+};
